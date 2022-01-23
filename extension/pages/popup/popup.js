@@ -961,7 +961,8 @@ async function setupStocksOverview() {
 						const stocks = getRequiredStocks(stock.benefit.requirement, level);
 						const reward = getStockReward(stock.benefit.description, level);
 
-						const roi = ((yearlyValue * level) / (stocks * stock.current_price)) * 100;
+						const stocksPrevious = getRequiredStocks(stock.benefit.requirement, level - 1);
+						const roi = (yearlyValue / ((stocks - stocksPrevious) * stock.current_price)) * 100;
 
 						benefitTable.appendChild(
 							document.newElement({

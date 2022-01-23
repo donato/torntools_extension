@@ -16,7 +16,8 @@
 			"changes": [
 				{ "message": "Switch to TornStats' v2 api.", "contributor": "DeKleineKobini" },
 				{ "message": "Improve TornStats error handling on the profile.", "contributor": "DeKleineKobini" },
-				{ "message": "Allow stock search to work for acronyms.", "contributor": "DeKleineKobini" }
+				{ "message": "Allow stock search to work for acronyms.", "contributor": "DeKleineKobini" },
+				{ "message": "Change stock ROI in the popup to be for the individual increment.", "contributor": "DeKleineKobini" }
 			],
 			"removed": []
 		}
