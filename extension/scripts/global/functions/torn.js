@@ -1453,6 +1453,13 @@ const darkModeObserver = new (class {
 	constructor() {
 		this.listeners = new Set();
 		this.prevDarkModeState = null;
+	}
+
+	initialize() {
+		if (this.observer) {
+			return;
+		}
+		
 		this.observer = new MutationObserver(() => {
 			const darkModeState = hasDarkMode();
 
@@ -1462,8 +1469,9 @@ const darkModeObserver = new (class {
 			}
 		});
 	}
-
+	
 	addListener(callback) {
+		this.initialize();
 		if (!this.prevDarkModeState) this.prevDarkModeState = hasDarkMode();
 
 		this.listeners.add(callback);
