@@ -508,11 +508,6 @@ body.dark .hide-items span {
 
 /* endregion */
 
-#notification-sound-play,
-#notification-sound-stop {
-	cursor: pointer;
-}
-
 #hide-icons .tooltip-text {
 	margin-left: -17.5px;
 }

@@ -7,7 +7,9 @@
 			"features": [],
 			"fixes": [],
 			"changes": [],
-			"removed": []
+			"removed": [
+				{ "message": "Removed notification sounds due to it not being available anymore.", "contributor": "DeKleineKobini" }
+			]
 		}
 	},
 	{

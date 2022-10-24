@@ -1,9 +1,6 @@
 "use strict";
 
-const notificationPlayer = getAudioPlayer();
-const notificationTestPlayer = getAudioPlayer();
-
-let notificationSound, notificationWorker;
+let notificationWorker;
 const notificationRelations = {};
 
 const notifications = {
@@ -1352,11 +1349,9 @@ function newNotification(title, message, link) {
 }
 
 async function notifyUser(title, message, url) {
-	await setupSoundPlayer();
-
 	const icon = "resources/images/icon_128.png";
 	const requireInteraction = hasInteractionSupport() && settings.notifications.requireInteraction;
-	const silent = hasSilentSupport() && notificationSound !== "default";
+	const silent = hasSilentSupport() && settings.notifications.sound !== "default";
 
 	if (settings.notifications.tts) {
 		readMessage(title);
@@ -1373,19 +1368,6 @@ async function notifyUser(title, message, url) {
 		}
 	}
 
-	async function setupSoundPlayer() {
-		if (notificationSound !== settings.notifications.sound) {
-			const sound = await getNotificationSound(settings.notifications.sound);
-
-			if (sound && sound !== "mute") {
-				notificationPlayer.src = sound;
-			}
-
-			notificationSound = settings.notifications.sound;
-		}
-		notificationPlayer.volume = settings.notifications.volume / 100;
-	}
-
 	async function notifyNative() {
 		const id = await new Promise((resolve) => {
 			const options = { type: "basic", iconUrl: icon, title, message };
@@ -1394,8 +1376,6 @@ async function notifyUser(title, message, url) {
 
 			chrome.notifications.create(options, (id) => resolve(id));
 		});
-
-		if (notificationSound !== "default" && notificationSound !== "mute") notificationPlayer.play().then(() => {});
 
 		if (settings.notifications.link) notificationRelations[id] = url;
 	}
@@ -1430,11 +1410,7 @@ async function notifyUser(title, message, url) {
 		await new Promise((resolve, reject) => {
 			notificationWorker
 				.showNotification(title, options)
-				.then(() => {
-					if (notificationSound !== "default" && notificationSound !== "mute") notificationPlayer.play();
-
-					resolve();
-				})
+				.then(() => resolve())
 				.catch((error) => reject(error));
 		});
 	}
@@ -1454,20 +1430,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 			timedUpdates();
 
 			sendResponse({ success: true });
-			break;
-		case "play-notification-sound":
-			getNotificationSound(message.sound).then((sound) => {
-				if (!sound) return;
-
-				notificationTestPlayer.volume = message.volume / 100;
-				notificationTestPlayer.src = sound;
-				// noinspection JSIgnoredPromiseFromCall
-				notificationTestPlayer.play();
-			});
-			sendResponse({ success: true });
-			break;
-		case "stop-notification-sound":
-			notificationTestPlayer.pause();
 			break;
 		case "notification":
 			notifyUser(message.title, message.message, message.url)
@@ -1502,31 +1464,6 @@ chrome.notifications.onClicked.addListener((id) => {
 		chrome.tabs.create({ url: notificationRelations[id] });
 	}
 });
-
-function getNotificationSound(type) {
-	return new Promise((resolve) => {
-		switch (type) {
-			case "1":
-			case "2":
-			case "3":
-			case "4":
-			case "5":
-				return resolve(`resources/audio/notification${type}.wav`);
-			case "custom":
-				return resolve(settings.notifications.soundCustom);
-			default:
-				return resolve(false);
-		}
-	});
-}
-
-function getAudioPlayer() {
-	const audioPlayer = new Audio();
-	audioPlayer.autoplay = false;
-	audioPlayer.preload = true;
-
-	return audioPlayer;
-}
 
 function storeNotification(notification) {
 	notificationHistory.insertAt(0, notification);

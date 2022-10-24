@@ -277,23 +277,9 @@ async function setupPreferences(requireCleanup) {
 
 		if (value === "mute" || value === "default") {
 			_preferences.find("#notification-volume").classList.add("tt-hidden");
-			_preferences.find("#notification-sound-play").classList.add("tt-hidden");
-			_preferences.find("#notification-sound-stop").classList.add("tt-hidden");
 		} else {
 			_preferences.find("#notification-volume").classList.remove("tt-hidden");
-			_preferences.find("#notification-sound-play").classList.remove("tt-hidden");
-			_preferences.find("#notification-sound-stop").classList.remove("tt-hidden");
 		}
-	});
-	_preferences.find("#notification-sound-play").addEventListener("click", () => {
-		chrome.runtime.sendMessage({
-			action: "play-notification-sound",
-			sound: _preferences.find("#notification-sound").value,
-			volume: parseInt(_preferences.find("#notification-volume").value),
-		});
-	});
-	_preferences.find("#notification-sound-stop").addEventListener("click", () => {
-		chrome.runtime.sendMessage({ action: "stop-notification-sound" });
 	});
 	_preferences.find("#notification-sound-upload").addEventListener("change", (event) => {
 		if (!event.target.files.length) return;
@@ -642,12 +628,8 @@ async function setupPreferences(requireCleanup) {
 		} else {
 			if (settings.notifications.sound === "mute" || settings.notifications.sound === "default") {
 				_preferences.find("#notification-volume").classList.add("tt-hidden");
-				_preferences.find("#notification-sound-play").classList.add("tt-hidden");
-				_preferences.find("#notification-sound-stop").classList.add("tt-hidden");
 			} else {
 				_preferences.find("#notification-volume").classList.remove("tt-hidden");
-				_preferences.find("#notification-sound-play").classList.remove("tt-hidden");
-				_preferences.find("#notification-sound-stop").classList.remove("tt-hidden");
 			}
 		}
 
