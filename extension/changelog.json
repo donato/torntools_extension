@@ -1,5 +1,16 @@
 [
 	{
+		"version": { "major": 6, "minor": 11, "build": 0 },
+		"title": "Manifest V3 - Beta",
+		"date": false,
+		"logs": {
+			"features": [],
+			"fixes": [],
+			"changes": [],
+			"removed": []
+		}
+	},
+	{
 		"version": { "major": 6, "minor": 10, "build": 0 },
 		"title": "Beta",
 		"date": false,
