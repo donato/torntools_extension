@@ -39,7 +39,7 @@
 				"vendor/*"
 			],
 			"matches": [
-				"https://torn.com/*"
+				"https://www.torn.com/*"
 			]
 		}
 	],
