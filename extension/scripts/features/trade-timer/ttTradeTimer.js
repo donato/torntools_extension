@@ -34,9 +34,8 @@
 	function triggerTrade(chat) {
 		const input = chat.find("[class*='_chat-box-input_']");
 
-		let timer;
-		if (input.find("#tt-trade-timer")) timer = input.find("#tt-trade-timer");
-		else {
+		let timer = input.find("#tt-trade-timer");
+		if (!timer) {
 			timer = document.newElement({
 				type: "div",
 				id: "tt-trade-timer",
@@ -47,7 +46,7 @@
 			});
 			input.insertBefore(document.newElement({ type: "div", children: [timer] }), input.firstElementChild);
 
-			input.find("textarea").addEventListener("keypress", onKeyPress);
+			input.find("textarea").addEventListener("keypress", onKeyPress, { capture: true });
 			input.classList.add("tt-modified");
 		}
 
@@ -55,7 +54,9 @@
 		if (localdata.tradeMessage > now) {
 			timer.textContent = formatTime({ milliseconds: localdata.tradeMessage - now }, { type: "wordTimer", extraShort: true });
 			timer.dataset.seconds = ((localdata.tradeMessage - now) / TO_MILLIS.SECONDS).dropDecimals().toString();
-			countdownTimers.push(timer);
+
+			// Append new timer to countdown timers only if not already present
+			if (!countdownTimers.some((counter) => counter === timer)) countdownTimers.push(timer);
 		} else {
 			timer.textContent = "OK";
 		}
@@ -73,18 +74,28 @@
 
 		const message = await new Promise((resolve) => {
 			new MutationObserver((mutations, observer) => {
-				const mutation = mutations.find((mutation) => mutation.addedNodes.length);
-				if (!mutation) return;
+				const msgMutations = mutations.filter((mut) => mut.addedNodes.length);
+				if (!msgMutations || !msgMutations.length) return;
 
-				const node = mutation.addedNodes[0];
+				// Find all newly added nodes - chat message nodes and error nodes too
+				const node = msgMutations
+								.map(mut => [...mut.addedNodes])
+								.flat()
+								.filter(
+									(msg) => msg.children[0]
+												.getAttribute("href")
+												?.endsWith(userdata.player_id.toString()) ||
+											 msg.className.includes("_error_")
+									)?.[0];
 
 				observer.disconnect();
 				resolve(node);
 			}).observe(overview, { childList: true });
 		});
-		if (event.target.value) return;
+		// Maybe not of potential use ?
+		// if (event.target.value) return;
 
-		if (message.classList.contains("^=error_")) return;
+		if (message.className.includes("_error_")) return;
 
 		await ttStorage.change({ localdata: { tradeMessage: Date.now() + TO_MILLIS.SECONDS * 61 } });
 	}
@@ -93,8 +104,7 @@
 		const chat = document.find("#chatRoot [class*='_chat-box_'][class*='_trade_'][class*='_chat-active_']");
 		if (!chat) return;
 
-		const timer = chat.find("#tt-trade-timer");
-		if (timer) timer.remove();
+		chat.find("#tt-trade-timer")?.remove();
 
 		const input = chat.find("[class*='_chat-box-input_']");
 
